@@ -1,0 +1,48 @@
+# =============================================================
+#  GitHub Actions — SonarCloud Analysis
+#  Triggers on every push and pull-request to main
+# =============================================================
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository with full git history
+      #    (SonarCloud needs history to calculate new vs existing issues)
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history, not a shallow clone
+
+      # 2. Set up PHP so PHPUnit can run
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: xdebug        # needed for coverage reports
+
+      # 3. Install Composer dependencies (PHPUnit)
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # 4. Run PHPUnit and generate a Clover XML coverage report
+      - name: Run tests with coverage
+        run: vendor/bin/phpunit --coverage-clover coverage.xml
+
+      # 5. Run SonarCloud analysis
+      #    SONAR_TOKEN must be stored as a GitHub Actions secret
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # automatic — no setup needed
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}      # add this in repo Settings → Secrets

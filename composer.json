@@ -1,0 +1,21 @@
+{
+  "name": "t-dharunkumar/sonarqube-demo",
+  "description": "SonarQube Cloud demo project",
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/"
+    ]
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-clover coverage.xml"
+  }
+}
